@@ -59,7 +59,12 @@ def get_db_client():
 
 def get_records(client):
     cursor = client.cursor(as_dict=True)
-    sql = 'select * from dbo.Location'
+
+
+    where = 'where PublicRelease=1'
+    order = 'order by PointID'
+
+    sql = f'''select * from dbo.Location {where} {order}'''
 
     print('executing query================')
     print('sql: ', sql)
@@ -76,6 +81,8 @@ def make_csv_record(record):
 def export_results(records, export_name):
     with open(export_name, 'w') as f:
         writer = csv.writer(f)
+        writer.writerow(['PointID', 'SiteNames', 'Latitude', 'Longitude'])
+
         for record in records:
             row = make_csv_record(record)
             writer.writerow(row)
