@@ -1,2 +1,4 @@
 pymssql
 pyproj
+pandas
+openpyxl

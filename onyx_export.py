@@ -22,16 +22,8 @@ This script is used to export a csv from NM_Aquifer to be used in Onyx.
 import csv
 import os
 
+from db import get_db_client
 from geo_utils import utm_to_latlon
-
-# ===============================================================================
-# Database credentials
-HOST = os.environ.get('NM_AQUIFER_HOST', '')
-USER = os.environ.get('NM_AQUIFER_USER', '')
-PWD = os.environ.get('NM_AQUIFER_PWD', '')
-DB = 'NM_Aquifer'
-# ===============================================================================
-
 
 # ===============================================================================
 # Configuration
@@ -41,26 +33,8 @@ export_name = 'output/onyx_export.csv'
 # ===============================================================================
 
 
-def get_db_client():
-    """
-    This function is used to connect to the database.
-    :return:
-    """
-
-    import pymssql
-    try:
-        client = pymssql.connect(HOST, USER, PWD, DB, login_timeout=1)
-    except pymssql.OperationalError as e:
-        print('Error connecting to database. Check your credentials.')
-        print(e)
-        exit()
-
-    return client
-
-
 def get_records(client):
     cursor = client.cursor(as_dict=True)
-
 
     where = 'where PublicRelease=1'
     order = 'order by PointID'
