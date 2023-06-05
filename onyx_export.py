@@ -20,14 +20,15 @@ This script is used to export a csv from NM_Aquifer to be used in Onyx.
 
 """
 import csv
+import os
 
 from geo_utils import utm_to_latlon
 
 # ===============================================================================
 # Database credentials
-HOST = ''
-USER = ''
-PWD = ''
+HOST = os.environ.get('NM_AQUIFER_HOST', '')
+USER = os.environ.get('NM_AQUIFER_USER', '')
+PWD = os.environ.get('NM_AQUIFER_PWD', '')
 DB = 'NM_Aquifer'
 # ===============================================================================
 
