@@ -19,11 +19,9 @@ from datetime import datetime, date
 from nmat.db import get_db_client
 
 
-def make_insert(table, attributes, values):
+def make_insert(table, attributes):
+    values = ", ".join(["%s"] * len(attributes))
     attributes = ", ".join(attributes)
-    values = ", ".join(
-        [f"'{v}'" if isinstance(v, (str, datetime, date)) else str(v) for v in values]
-    )
 
     sql = f"""
     INSERT INTO dbo.{table} ({attributes})
@@ -67,16 +65,17 @@ def execute_fetch(sql, client=None, verbose=True, fetch="fetchall"):
     return func()
 
 
-def execute_insert(sql, client=None, verbose=True, dry=True):
+def execute_insert(sql, values, client=None, verbose=True, dry=True):
     if verbose:
         print("executing insert================")
         print("sql: ", sql)
+        print("values: ", values)
         print("===============================")
 
     cursor = client.cursor()
-    cursor.execute(sql)
+    cursor.execute(sql, tuple(values))
     if not dry:
-        cursor.commit()
+        client.commit()
 
 
 # ============= EOF =============================================

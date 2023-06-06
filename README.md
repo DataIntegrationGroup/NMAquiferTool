@@ -20,3 +20,10 @@ You can add verbose output with the `--verbose` flag:
 ```shell
 nmat upload waterlevels --commit --verbose --file water_levels.xlsx
 ```
+
+
+```shell
+
+nmat upload waterlevels --verbose --file ./nmat/indata/BernalilloCountyUpdate2023.xlsx
+
+```
