@@ -9,8 +9,8 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/nmaquifertool
-      permissions:
-        id-token: write
+    permissions:
+      id-token: write
 
     steps:
       - uses: actions/checkout@v3
