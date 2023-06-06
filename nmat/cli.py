@@ -58,12 +58,12 @@ def upload():
 @upload.command()
 @click.option("--file", prompt="Specify input file path", help="Input file path")
 @click.option("--sheetname", default="Sheet1", help="The sheet name")
-@click.option("--dry_run", default=True, help="Dry run")
-@click.option("--verbose", default=False, help="Verbose logging")
-def waterlevels(file, sheetname, dry_run, verbose):
+@click.option("--commit", is_flag=True, default=False, help="Commit data to database")
+@click.option("--verbose", is_flag=True, default=False, help="Verbose logging")
+def waterlevels(file, sheetname, commit, verbose):
     from nmat.runner import waterlevels
 
-    waterlevels(file, sheetname, dry=dry_run, verbose=verbose)
+    waterlevels(file, sheetname, dry=not commit, verbose=verbose)
 
 
 # ============= EOF =============================================
