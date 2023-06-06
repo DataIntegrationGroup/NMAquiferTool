@@ -42,4 +42,10 @@ def onyx_export(output):
     export(output)
 
 
+def waterlevels(file, sheetname, **kw):
+    file = './nmat/indata/sp2023berncowls.xlsx'
+    sheetname = "Sp2023BernCoWLs"
+
+    from nmat.bc_uploader import upload_waterlevels_from_file
+    upload_waterlevels_from_file(file, sheetname, **kw)
 # ============= EOF =============================================

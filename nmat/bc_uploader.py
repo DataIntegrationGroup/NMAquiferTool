@@ -14,43 +14,66 @@
 # limitations under the License.
 # ===============================================================================
 import pandas as pd
-import requests as requests
+# import requests as requests
 
 from nmat.db import get_db_client
+from nmat.geo_utils import latlon_to_utm
 from nmat.query import execute_fetch, execute_insert, make_insert, make_select
+from nmat.util import message, warning, info
 
 CKAN_URL = "https://catalog.newmexicowaterdata.org/"
 
 
-def add_records_to_db(client, group):
+def add_records_to_db(client, pointid, group, dry=True, verbose=True):
     for i, row in group.iterrows():
-        sql = make_insert("WaterLevels", row.keys(), row.values)
-        execute_insert(sql, client=client)
+        info(f"Adding {i}, {row['Well_Name']} to database")
+
+        keys = ['PointID',
+                'DateMeasured',
+                'DepthToWater',
+                'DepthToWaterBGS',
+                'MPHeight']
+
+        values = [pointid,
+                  row['MSRMNT_Dat'].date(),
+                  row['Depth_To_W'],
+                  row['Depth_To_W'],
+                  row['Stick_up'],
+                  ]
+
+        sql = make_insert("WaterLevels", keys, values)
+        execute_insert(sql, client=client, dry=dry, verbose=verbose)
 
 
-def add_point_to_db(client, row):
-    last_pointid = get_last_point_id_like(client, "BC-")
+def add_point_to_db(client, row, dry=True, verbose=True):
+    result = get_last_point_id_like(client, "BC-", verbose=verbose)
+    last_pointid = result['PointID']
 
     n = int(last_pointid.split("-")[1])
     pointid = f"BC-{n + 1:04n}"
 
-    sql = make_insert("Location", row.keys(), row.values)
-    execute_insert(sql, client=client)
+    keys = ['PointID', 'Easting', 'Northing', 'Altitude']
+    easting, northing = latlon_to_utm(row['Long_DD'], row['Lat_DD'])
+
+    values = [pointid, easting, northing, row['Elev_ft']]
+
+    sql = make_insert("Location", keys, values)
+    execute_insert(sql, client=client, dry=dry, verbose=verbose)
 
     return pointid
 
 
-def get_last_point_id_like(client, point_id):
+def get_last_point_id_like(client, point_id, verbose=True):
     """
     This function is used to get the last PointID from the database that is like point_id.
     :param point_id:
     :return:
     """
     sql = make_select(where=f"PointID LIKE '{point_id}%'", order=f"PointID DESC")
-    return execute_fetch(sql, client=client, fetch="fetchfirst")
+    return execute_fetch(sql, client=client, fetch="fetchone", verbose=verbose)
 
 
-def get_point_id(client, point_id):
+def get_point_id(client, point_id, verbose=True):
     """
     This function is used to get the point_id from the database.
     :param point_id:
@@ -58,31 +81,29 @@ def get_point_id(client, point_id):
     """
 
     sql = make_select(attributes="PointID", where=f"PointID = '{point_id}'")
-    return execute_fetch(sql, client=client, fetch="fetchone")
+    return execute_fetch(sql, client=client, fetch="fetchone", verbose=verbose)
 
 
-def get_latest_record(client, pointid):
+def get_latest_record(client, pointid, verbose=True):
     sql = make_select(
         table="WaterLevels", where=f"PointID = '{pointid}'", order="DateMeasured DESC"
     )
-    return execute_fetch(sql, client=client, fetch="fetchone")
+    return execute_fetch(sql, client=client, fetch="fetchone", verbose=verbose)
 
 
 def get_latest_data():
     resource_id = ""
 
     url = f"{CKAN_URL}/datastore/dump/{resource_id}"
-    resp = requests.get(url)
-    return resp.text
+    # resp = requests.get(url)
+    # return resp.text
 
 
-def main():
-    client = get_db_client()
+def upload_waterlevels_from_file(p, sheetname, client=None, dry=True, verbose=False):
+    message(f'Uploading waterlevels from {p}, sheet={sheetname}, dry={dry}')
 
-    get_latest_data()
-
-    p = "./indata/sp2023berncowls.xlsx"
-    sheetname = "Sp2023BernCoWLs"
+    if client is None:
+        client = get_db_client()
 
     df = pd.read_excel(p, sheet_name=sheetname)
 
@@ -93,26 +114,49 @@ def main():
     grouped = filtered.groupby("Well_Name")
     for name, group in grouped:
         # check if in database
-
         repr_row = group.iloc[0]
-        pointid = get_point_id(client, repr_row["PointID"])
-        if pointid:
-            print(f"{name} already in database")
+
+        pointid = repr_row["PointID"]
+        if pointid and pointid != "nan":
+            info(f'Checking if {name}, ({pointid}) in database')
+            result = get_point_id(client, pointid, verbose=verbose)
+            pointid = result['PointID'] if result else None
         else:
-            pointid = add_point_to_db(client, repr_row)
+            info(f'no PointID provided. Assuming {name} not in database')
+            break
+
+        if pointid:
+            warning(f"{name} already in database")
+
+        else:
+            pointid = add_point_to_db(client, repr_row, dry=dry, verbose=verbose)
 
         # iterate over each row in the group
         # sort group by date
-        group = group.sort_values(by="Date")
+        group = group.sort_values(by="MSRMNT_Dat")
 
         # get the latest record from the database
-        dbrecord = get_latest_record(client, pointid)
+        dbrecord = get_latest_record(client, pointid, verbose=verbose)
+
         if dbrecord:
+            print('asdf', dbrecord['DateMeasured'])
             # filter out all records that are older than the latest record in the database
-            group = group[group["Date"] > dbrecord["Date"]]
+            group = group[group["MSRMNT_Dat"].dt.date > dbrecord["DateMeasured"]]
+            # print(group)
+            # print(group['MSRMNT_Dat'].dt.date)
 
         # add records to database
-        add_records_to_db(client, group)
+        add_records_to_db(client, pointid, group, dry=dry, verbose=verbose)
+
+
+def main():
+    client = get_db_client()
+
+    get_latest_data()
+
+    p = "./indata/sp2023berncowls.xlsx"
+    sheetname = "Sp2023BernCoWLs"
+    upload_waterlevels_from_file(p, sheetname, client=client)
 
 
 if __name__ == "__main__":

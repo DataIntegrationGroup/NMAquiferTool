@@ -19,20 +19,19 @@ import yaml
 
 from nmat.util import warning, message, error
 
-
 # ===============================================================================
 # Database credentials
-# cp = './config/credentials.yaml'
-# ycfg = {}
-# if os.path.isfile(cp):
-#     with open(cp, 'r') as f:
-#         ycfg = yaml.load(f, Loader=yaml.FullLoader)
-#
+cp = os.path.join(os.path.expanduser('~'), '.nmat', 'credentials.yaml')
+
+ycfg = {}
+if os.path.isfile(cp):
+    with open(cp, 'r') as f:
+        ycfg = yaml.load(f, Loader=yaml.FullLoader)
 
 
 def get_credential(key):
-    return os.environ.get(key, "default")
-    # return os.environ.get(key, ycfg.get(key, 'default'))
+    # return os.environ.get(key, "default")
+    return os.environ.get(key, ycfg.get(key, 'default'))
 
 
 HOST = get_credential("NM_AQUIFER_HOST")
@@ -68,6 +67,5 @@ def get_db_client():
         exit()
 
     return client
-
 
 # ============= EOF =============================================

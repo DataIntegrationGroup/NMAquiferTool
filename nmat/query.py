@@ -14,25 +14,24 @@
 # limitations under the License.
 # ===============================================================================
 import csv
+from datetime import datetime, date
 
 from nmat.db import get_db_client
 
 
 def make_insert(table, attributes, values):
     attributes = ", ".join(attributes)
-    values = ", ".join(values)
+    values = ", ".join([f"'{v}'" if isinstance(v, (str, datetime, date)) else str(v) for v in values])
 
     sql = f"""
     INSERT INTO dbo.{table} ({attributes})
-    VALUES ({values})
-    """
+    VALUES ({values})"""
     return sql
 
 
 def make_select(attributes="*", table="Location", where=None, order=None):
     sql = f"""
-    SELECT {attributes} FROM dbo.{table}
-    """
+    SELECT {attributes} FROM dbo.{table}"""
 
     if where:
         sql = f"{sql} WHERE {where}"
@@ -66,7 +65,7 @@ def execute_fetch(sql, client=None, verbose=True, fetch="fetchall"):
     return func()
 
 
-def execute_insert(sql, client=None, verbose=True):
+def execute_insert(sql, client=None, verbose=True, dry=True):
     if verbose:
         print("executing insert================")
         print("sql: ", sql)
@@ -74,7 +73,8 @@ def execute_insert(sql, client=None, verbose=True):
 
     cursor = client.cursor()
     cursor.execute(sql)
-    cursor.commit()
+    if not dry:
+        cursor.commit()
 
 
 # ============= EOF =============================================

@@ -1,5 +1,5 @@
 # ===============================================================================
-# Copyright 2023 ross
+# Copyright 2023 Jake Ross
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,29 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
-import pyproj
 
-PROJECTIONS = {}
-
-
-def utm_to_latlon(e, n, zone=13):
-    name = f"utm{zone}"
-    if name not in PROJECTIONS:
-        pr = pyproj.Proj(proj="utm", zone=int(zone), ellps="WGS84")
-        PROJECTIONS[name] = pr
-
-    pr = PROJECTIONS[name]
-    return pr(e, n, inverse=True)
-
-
-def latlon_to_utm(lon, lat, zone=13):
-    name = "latlon"
-    if name not in PROJECTIONS:
-        pr = pyproj.Proj(proj="utm", ellps="WGS84", zone=int(zone))
-        PROJECTIONS[name] = pr
-
-    pr = PROJECTIONS[name]
-    return pr(lon, lat)
+def get_well_log():
+    pass
 
 
 # ============= EOF =============================================
