@@ -16,7 +16,9 @@
 import os
 from pathlib import Path
 
-import click as click
+import click
+
+from nmat.util import info, message
 
 
 @click.command()
@@ -24,12 +26,12 @@ import click as click
     "--config", prompt="Config path", help="Path to configuration file. e.g config.yaml"
 )
 def cli_c(config):
-    click.echo("Doing NMAT config run")
-    click.echo(f"Using config file: {config}")
+    # click.secho("Doing NMAT config run", fg="green")
+    # click.secho(f"Using config file: {config}", fg="green")
+    info("Doing NMAT config run")
+    message(f"Using config file: {config}")
     from nmat.runner import run
 
-    # print(os.path.curdir, os.getcwd())
-    # config = os.path.join(os.getcwd(), './nmat/config/config.yaml')
     config = Path("./nmat/config/config.yaml")
     run(config)
 
@@ -42,11 +44,8 @@ def cli():
 @cli.command()
 @click.option("--output", prompt="Specify output path", help="Output path")
 def onyx_export(output):
-    click.echo(f"Exporting to {output}")
-
-    # """Simple program that greets NAME for a total of COUNT times."""
-    # for x in range(count):
-    #     click.echo(f"Hello {name}!")
-
+    info(f"Exporting to {output}")
+    from nmat.runner import onyx_export as export
+    export(output)
 
 # ============= EOF =============================================

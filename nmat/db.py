@@ -17,6 +17,9 @@ import os
 
 import yaml
 
+from nmat.util import warning, message, error
+
+
 # ===============================================================================
 # Database credentials
 # cp = './config/credentials.yaml'
@@ -50,17 +53,18 @@ def get_db_client():
     try:
         client = pymssql.connect(HOST, USER, PWD, DB, login_timeout=1)
     except pymssql.OperationalError as e:
-        print("Error connecting to database. Check your credentials.")
-        print("Using credentials =============")
-        print("HOST: ", HOST)
-        print("USER: ", USER)
-        print("DB: ", DB)
-        print("===============================")
+        error(e)
+        warning("Error connecting to database. Check your credentials.")
+        message("======== Using credentials ==========")
+        message(f"HOST: {HOST}")
+        message(f"USER: {USER}")
+        message(f"DB: {DB}")
+        message("=====================================")
         if HOST == "default" and USER == "default" and DB == "default":
-            print(
-                "Please set db credentials in your config file or as environment variables "
+            message(
+                "Please set db credentials in your config file or as environment variables ",
+                fg='blue'
             )
-        print(e)
         exit()
 
     return client

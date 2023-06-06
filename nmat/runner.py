@@ -37,7 +37,6 @@ def run_c(config):
 
 
 def onyx_export(output):
-    print(f"Exporting to {output}")
     from nmat.onyx_export import export
 
     export(output)
