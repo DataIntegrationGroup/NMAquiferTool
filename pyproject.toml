@@ -36,3 +36,4 @@ dynamic = ["version"]
 
 [project.scripts]
 nmat = "nmat.cli:cli"
+nmat_c = "nmat.cli:cli_c"

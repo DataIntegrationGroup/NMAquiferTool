@@ -13,7 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import os
+from pathlib import Path
+
 import click as click
+
+
+@click.command()
+@click.option('--config', prompt='Config path',
+              help='Path to configuration file. e.g config.yaml')
+def cli_c(config):
+    click.echo('Doing NMAT config run')
+    click.echo(f'Using config file: {config}')
+    from nmat.runner import run
+    # print(os.path.curdir, os.getcwd())
+    # config = os.path.join(os.getcwd(), './nmat/config/config.yaml')
+    config = Path('./nmat/config/config.yaml')
+    run(config)
+
+
 @click.group()
 def cli():
     pass
@@ -28,8 +46,5 @@ def onyx_export(output):
     # """Simple program that greets NAME for a total of COUNT times."""
     # for x in range(count):
     #     click.echo(f"Hello {name}!")
-
-
-
 
 # ============= EOF =============================================

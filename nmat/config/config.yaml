@@ -1,0 +1,4 @@
+steps:
+  - function: onyx_export
+    args:
+      output: /path/to/output

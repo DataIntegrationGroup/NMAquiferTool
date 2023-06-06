@@ -15,7 +15,7 @@
 # ===============================================================================
 import csv
 
-from db import get_db_client
+from nmat.db import get_db_client
 
 
 def make_insert(table, attributes, values):

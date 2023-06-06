@@ -22,8 +22,8 @@ This script is used to export a csv from NM_Aquifer to be used in Onyx.
 import csv
 import os
 
-from db import get_db_client
-from geo_utils import utm_to_latlon
+from nmat.db import get_db_client
+from nmat.geo_utils import utm_to_latlon
 from nmat.query import execute_fetch, make_select
 from nmat.util import write_csv
 
@@ -47,15 +47,19 @@ def get_records():
     return execute_fetch(sql, client=client)
 
 
-def main():
+def export(path):
     def make_csv_record(record):
         lon, lat = utm_to_latlon(record['Easting'], record['Northing'])
         return [record['PointID'], record['SiteNames'], lat, lon]
 
     records = get_records()
-    write_csv(records, EXPORT_PATH,
+    write_csv(records, path,
               func=make_csv_record,
               header=['PointID', 'SiteNames', 'Latitude', 'Longitude'])
+
+
+def main():
+    export(EXPORT_PATH)
 
 
 if __name__ == '__main__':
