@@ -46,6 +46,8 @@ def cli():
 def onyx_export(output):
     info(f"Exporting to {output}")
     from nmat.runner import onyx_export as export
+
     export(output)
+
 
 # ============= EOF =============================================

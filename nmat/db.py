@@ -63,7 +63,7 @@ def get_db_client():
         if HOST == "default" and USER == "default" and DB == "default":
             message(
                 "Please set db credentials in your config file or as environment variables ",
-                fg='blue'
+                fg="blue",
             )
         exit()
 

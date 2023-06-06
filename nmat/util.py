@@ -19,9 +19,9 @@ import click as click
 
 
 def error(msg):
-    click.secho('------------------------------------------------------', fg=13)
-    click.secho(f'  {msg}', fg=13)
-    click.secho('------------------------------------------------------', fg=13)
+    click.secho("------------------------------------------------------", fg=13)
+    click.secho(f"  {msg}", fg=13)
+    click.secho("------------------------------------------------------", fg=13)
 
 
 def warning(msg):
@@ -32,7 +32,7 @@ def info(msg):
     click.secho(msg, fg="green")
 
 
-def message(msg, fg='yellow'):
+def message(msg, fg="yellow"):
     click.secho(msg, fg=fg)
 
 
@@ -42,6 +42,7 @@ def write_csv(records, export_name, func=None, header=None):
         if header is None:
             header = func(records[0].keys())
         if func is None:
+
             def func(r):
                 return [r[k] for k in header]
 
@@ -49,5 +50,6 @@ def write_csv(records, export_name, func=None, header=None):
         for record in records:
             row = func(record)
             writer.writerow(row)
+
 
 # ============= EOF =============================================
