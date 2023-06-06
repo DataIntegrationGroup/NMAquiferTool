@@ -16,8 +16,8 @@
 import pandas as pd
 import requests as requests
 
-from src.db import get_db_client
-from src.query import execute_fetch, execute_insert, make_insert, make_select
+from nmat.db import get_db_client
+from nmat.query import execute_fetch, execute_insert, make_insert, make_select
 
 CKAN_URL = 'https://catalog.newmexicowaterdata.org/'
 def add_records_to_db(client, group):
@@ -81,7 +81,7 @@ def main():
 
     get_latest_data()
 
-    p = '../indata/sp2023berncowls.xlsx'
+    p = './indata/sp2023berncowls.xlsx'
     sheetname = 'Sp2023BernCoWLs'
 
     df = pd.read_excel(p, sheet_name=sheetname)

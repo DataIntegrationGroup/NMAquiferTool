@@ -13,10 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ===============================================================================
+import click as click
+@click.group()
+def cli():
+    pass
 
 
+@cli.command()
+@click.option('--output', prompt='Specify output path',
+              help='Output path')
+def onyx_export(output):
+    click.echo(f"Exporting to {output}")
 
-
+    # """Simple program that greets NAME for a total of COUNT times."""
+    # for x in range(count):
+    #     click.echo(f"Hello {name}!")
 
 
 

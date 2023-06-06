@@ -15,12 +15,25 @@
 # ===============================================================================
 import os
 
+import yaml
+
 # ===============================================================================
 # Database credentials
-HOST = os.environ.get('NM_AQUIFER_HOST', '')
-USER = os.environ.get('NM_AQUIFER_USER', '')
-PWD = os.environ.get('NM_AQUIFER_PWD', '')
-DB = 'NM_Aquifer'
+cp = './config/credentials.yaml'
+ycfg = {}
+if os.path.isfile(cp):
+    with open(cp, 'r') as f:
+        ycfg = yaml.load(f, Loader=yaml.FullLoader)
+
+
+def get_credential(key):
+    return os.environ.get(key, ycfg.get(key, ''))
+
+
+HOST = get_credential('NM_AQUIFER_HOST')
+USER = get_credential('NM_AQUIFER_USER')
+PWD = get_credential('NM_AQUIFER_PWD')
+DB = get_credential('NM_AQUIFER_DB')
 
 
 # ===============================================================================

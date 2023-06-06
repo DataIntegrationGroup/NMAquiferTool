@@ -24,12 +24,12 @@ import os
 
 from db import get_db_client
 from geo_utils import utm_to_latlon
-from src.query import execute_fetch, make_select
-from src.util import write_csv
+from nmat.query import execute_fetch, make_select
+from nmat.util import write_csv
 
 # ===============================================================================
 # Configuration
-EXPORT_PATH = '../output/onyx_export.csv'
+EXPORT_PATH = './output/onyx_export.csv'
 
 
 # ===============================================================================
