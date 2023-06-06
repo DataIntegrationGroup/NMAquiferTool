@@ -14,6 +14,7 @@
 # limitations under the License.
 # ===============================================================================
 import pandas as pd
+
 # import requests as requests
 
 from nmat.db import get_db_client
@@ -28,18 +29,21 @@ def add_records_to_db(client, pointid, group, dry=True, verbose=True):
     for i, row in group.iterrows():
         info(f"Adding {i}, {row['Well_Name']} to database")
 
-        keys = ['PointID',
-                'DateMeasured',
-                'DepthToWater',
-                'DepthToWaterBGS',
-                'MPHeight']
+        keys = [
+            "PointID",
+            "DateMeasured",
+            "DepthToWater",
+            "DepthToWaterBGS",
+            "MPHeight",
+        ]
 
-        values = [pointid,
-                  row['MSRMNT_Dat'].date(),
-                  row['Depth_To_W'],
-                  row['Depth_To_W'],
-                  row['Stick_up'],
-                  ]
+        values = [
+            pointid,
+            row["MSRMNT_Dat"].date(),
+            row["Depth_To_W"],
+            row["Depth_To_W"],
+            row["Stick_up"],
+        ]
 
         sql = make_insert("WaterLevels", keys, values)
         execute_insert(sql, client=client, dry=dry, verbose=verbose)
@@ -47,15 +51,15 @@ def add_records_to_db(client, pointid, group, dry=True, verbose=True):
 
 def add_point_to_db(client, row, dry=True, verbose=True):
     result = get_last_point_id_like(client, "BC-", verbose=verbose)
-    last_pointid = result['PointID']
+    last_pointid = result["PointID"]
 
     n = int(last_pointid.split("-")[1])
     pointid = f"BC-{n + 1:04n}"
 
-    keys = ['PointID', 'Easting', 'Northing', 'Altitude']
-    easting, northing = latlon_to_utm(row['Long_DD'], row['Lat_DD'])
+    keys = ["PointID", "Easting", "Northing", "Altitude"]
+    easting, northing = latlon_to_utm(row["Long_DD"], row["Lat_DD"])
 
-    values = [pointid, easting, northing, row['Elev_ft']]
+    values = [pointid, easting, northing, row["Elev_ft"]]
 
     sql = make_insert("Location", keys, values)
     execute_insert(sql, client=client, dry=dry, verbose=verbose)
@@ -100,7 +104,7 @@ def get_latest_data():
 
 
 def upload_waterlevels_from_file(p, sheetname, client=None, dry=True, verbose=False):
-    message(f'Uploading waterlevels from {p}, sheet={sheetname}, dry={dry}')
+    message(f"Uploading waterlevels from {p}, sheet={sheetname}, dry={dry}")
 
     if client is None:
         client = get_db_client()
@@ -118,11 +122,11 @@ def upload_waterlevels_from_file(p, sheetname, client=None, dry=True, verbose=Fa
 
         pointid = repr_row["PointID"]
         if pointid and pointid != "nan":
-            info(f'Checking if {name}, ({pointid}) in database')
+            info(f"Checking if {name}, ({pointid}) in database")
             result = get_point_id(client, pointid, verbose=verbose)
-            pointid = result['PointID'] if result else None
+            pointid = result["PointID"] if result else None
         else:
-            info(f'no PointID provided. Assuming {name} not in database')
+            info(f"no PointID provided. Assuming {name} not in database")
             break
 
         if pointid:
@@ -139,7 +143,7 @@ def upload_waterlevels_from_file(p, sheetname, client=None, dry=True, verbose=Fa
         dbrecord = get_latest_record(client, pointid, verbose=verbose)
 
         if dbrecord:
-            print('asdf', dbrecord['DateMeasured'])
+            print("asdf", dbrecord["DateMeasured"])
             # filter out all records that are older than the latest record in the database
             group = group[group["MSRMNT_Dat"].dt.date > dbrecord["DateMeasured"]]
             # print(group)

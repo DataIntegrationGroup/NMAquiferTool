@@ -21,7 +21,9 @@ from nmat.db import get_db_client
 
 def make_insert(table, attributes, values):
     attributes = ", ".join(attributes)
-    values = ", ".join([f"'{v}'" if isinstance(v, (str, datetime, date)) else str(v) for v in values])
+    values = ", ".join(
+        [f"'{v}'" if isinstance(v, (str, datetime, date)) else str(v) for v in values]
+    )
 
     sql = f"""
     INSERT INTO dbo.{table} ({attributes})
