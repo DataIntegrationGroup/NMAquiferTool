@@ -24,51 +24,38 @@ import os
 
 from db import get_db_client
 from geo_utils import utm_to_latlon
+from src.query import execute_fetch, make_select
+from src.util import write_csv
 
 # ===============================================================================
 # Configuration
-export_name = 'output/onyx_export.csv'
+EXPORT_PATH = '../output/onyx_export.csv'
 
 
 # ===============================================================================
 
 
-def get_records(client):
-    cursor = client.cursor(as_dict=True)
+def get_records():
+    client = get_db_client()
+    print('Connected to database', client)
 
     where = 'where PublicRelease=1'
     order = 'order by PointID'
 
-    sql = f'''select * from dbo.Location {where} {order}'''
+    sql = make_select(where=where, order=order)
 
-    print('executing query================')
-    print('sql: ', sql)
-    print('===============================')
-    cursor.execute(sql)
-    return cursor.fetchall()
-
-
-def make_csv_record(record):
-    lon, lat = utm_to_latlon(record['Easting'], record['Northing'])
-    return [record['PointID'], record['SiteNames'], lat, lon]
-
-
-def export_results(records, export_name):
-    with open(export_name, 'w') as f:
-        writer = csv.writer(f)
-        writer.writerow(['PointID', 'SiteNames', 'Latitude', 'Longitude'])
-
-        for record in records:
-            row = make_csv_record(record)
-            writer.writerow(row)
+    return execute_fetch(sql, client=client)
 
 
 def main():
-    client = get_db_client()
-    print('Connected to database', client)
+    def make_csv_record(record):
+        lon, lat = utm_to_latlon(record['Easting'], record['Northing'])
+        return [record['PointID'], record['SiteNames'], lat, lon]
 
-    records = get_records(client)
-    export_results(records, export_name)
+    records = get_records()
+    write_csv(records, EXPORT_PATH,
+              func=make_csv_record,
+              header=['PointID', 'SiteNames', 'Latitude', 'Longitude'])
 
 
 if __name__ == '__main__':
