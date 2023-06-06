@@ -29,7 +29,7 @@ from nmat.util import write_csv
 
 # ===============================================================================
 # Configuration
-EXPORT_PATH = './output/onyx_export.csv'
+EXPORT_PATH = "./output/onyx_export.csv"
 
 
 # ===============================================================================
@@ -37,10 +37,10 @@ EXPORT_PATH = './output/onyx_export.csv'
 
 def get_records():
     client = get_db_client()
-    print('Connected to database', client)
+    print("Connected to database", client)
 
-    where = 'where PublicRelease=1'
-    order = 'order by PointID'
+    where = "where PublicRelease=1"
+    order = "order by PointID"
 
     sql = make_select(where=where, order=order)
 
@@ -49,20 +49,23 @@ def get_records():
 
 def export(path):
     def make_csv_record(record):
-        lon, lat = utm_to_latlon(record['Easting'], record['Northing'])
-        return [record['PointID'], record['SiteNames'], lat, lon]
+        lon, lat = utm_to_latlon(record["Easting"], record["Northing"])
+        return [record["PointID"], record["SiteNames"], lat, lon]
 
     records = get_records()
-    write_csv(records, path,
-              func=make_csv_record,
-              header=['PointID', 'SiteNames', 'Latitude', 'Longitude'])
+    write_csv(
+        records,
+        path,
+        func=make_csv_record,
+        header=["PointID", "SiteNames", "Latitude", "Longitude"],
+    )
 
 
 def main():
     export(EXPORT_PATH)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 # ============= EOF =============================================

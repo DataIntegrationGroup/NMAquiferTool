@@ -17,11 +17,12 @@ import csv
 
 
 def write_csv(records, export_name, func=None, header=None):
-    with open(export_name, 'w') as f:
+    with open(export_name, "w") as f:
         writer = csv.writer(f)
         if header is None:
             header = func(records[0].keys())
         if func is None:
+
             def func(r):
                 return [r[k] for k in header]
 
@@ -29,4 +30,6 @@ def write_csv(records, export_name, func=None, header=None):
         for record in records:
             row = func(record)
             writer.writerow(row)
+
+
 # ============= EOF =============================================

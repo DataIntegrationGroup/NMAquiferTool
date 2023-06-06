@@ -19,8 +19,8 @@ from nmat.db import get_db_client
 
 
 def make_insert(table, attributes, values):
-    attributes = ', '.join(attributes)
-    values = ', '.join(values)
+    attributes = ", ".join(attributes)
+    values = ", ".join(values)
 
     sql = f"""
     INSERT INTO dbo.{table} ({attributes})
@@ -29,21 +29,21 @@ def make_insert(table, attributes, values):
     return sql
 
 
-def make_select(attributes='*', table='Location', where=None, order=None):
+def make_select(attributes="*", table="Location", where=None, order=None):
     sql = f"""
     SELECT {attributes} FROM dbo.{table}
     """
 
     if where:
-        sql = f'{sql} WHERE {where}'
+        sql = f"{sql} WHERE {where}"
     if order:
-        sql = f'{sql} ORDER BY {order}'
+        sql = f"{sql} ORDER BY {order}"
 
     return sql
 
 
 def make_csv(p, records):
-    with open(p, 'w') as wfile:
+    with open(p, "w") as wfile:
         writer = csv.writer(wfile)
         header = [str(k) for k in records[0].keys()]
         writer.writerow(header)
@@ -51,14 +51,14 @@ def make_csv(p, records):
             writer.writerow(record)
 
 
-def execute_fetch(sql, client=None, verbose=True, fetch='fetchall'):
+def execute_fetch(sql, client=None, verbose=True, fetch="fetchall"):
     if client is None:
         client = get_db_client()
 
     if verbose:
-        print('executing query================')
-        print('sql: ', sql)
-        print('===============================')
+        print("executing query================")
+        print("sql: ", sql)
+        print("===============================")
 
     cursor = client.cursor(as_dict=True)
     cursor.execute(sql)
@@ -68,11 +68,13 @@ def execute_fetch(sql, client=None, verbose=True, fetch='fetchall'):
 
 def execute_insert(sql, client=None, verbose=True):
     if verbose:
-        print('executing insert================')
-        print('sql: ', sql)
-        print('===============================')
+        print("executing insert================")
+        print("sql: ", sql)
+        print("===============================")
 
     cursor = client.cursor()
     cursor.execute(sql)
     cursor.commit()
+
+
 # ============= EOF =============================================

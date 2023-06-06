@@ -19,20 +19,22 @@ import requests as requests
 from nmat.db import get_db_client
 from nmat.query import execute_fetch, execute_insert, make_insert, make_select
 
-CKAN_URL = 'https://catalog.newmexicowaterdata.org/'
+CKAN_URL = "https://catalog.newmexicowaterdata.org/"
+
+
 def add_records_to_db(client, group):
     for i, row in group.iterrows():
-        sql = make_insert('WaterLevels', row.keys(), row.values)
+        sql = make_insert("WaterLevels", row.keys(), row.values)
         execute_insert(sql, client=client)
 
 
 def add_point_to_db(client, row):
-    last_pointid = get_last_point_id_like(client, 'BC-')
+    last_pointid = get_last_point_id_like(client, "BC-")
 
-    n = int(last_pointid.split('-')[1])
-    pointid = f'BC-{n + 1:04n}'
+    n = int(last_pointid.split("-")[1])
+    pointid = f"BC-{n + 1:04n}"
 
-    sql = make_insert('Location', row.keys(), row.values)
+    sql = make_insert("Location", row.keys(), row.values)
     execute_insert(sql, client=client)
 
     return pointid
@@ -44,9 +46,8 @@ def get_last_point_id_like(client, point_id):
     :param point_id:
     :return:
     """
-    sql = make_select(where=f"PointID LIKE '{point_id}%'",
-                      order=f"PointID DESC")
-    return execute_fetch(sql, client=client, fetch='fetchfirst')
+    sql = make_select(where=f"PointID LIKE '{point_id}%'", order=f"PointID DESC")
+    return execute_fetch(sql, client=client, fetch="fetchfirst")
 
 
 def get_point_id(client, point_id):
@@ -56,24 +57,23 @@ def get_point_id(client, point_id):
     :return:
     """
 
-    sql = make_select(attributes='PointID', where=f"PointID = '{point_id}'")
-    return execute_fetch(sql, client=client, fetch='fetchone')
+    sql = make_select(attributes="PointID", where=f"PointID = '{point_id}'")
+    return execute_fetch(sql, client=client, fetch="fetchone")
 
 
 def get_latest_record(client, pointid):
-    sql = make_select(table='WaterLevels',
-                      where=f"PointID = '{pointid}'",
-                      order='DateMeasured DESC')
-    return execute_fetch(sql, client=client, fetch='fetchone')
+    sql = make_select(
+        table="WaterLevels", where=f"PointID = '{pointid}'", order="DateMeasured DESC"
+    )
+    return execute_fetch(sql, client=client, fetch="fetchone")
 
 
 def get_latest_data():
-    resource_id = ''
+    resource_id = ""
 
-    url = f'{CKAN_URL}/datastore/dump/{resource_id}'
+    url = f"{CKAN_URL}/datastore/dump/{resource_id}"
     resp = requests.get(url)
     return resp.text
-
 
 
 def main():
@@ -81,41 +81,41 @@ def main():
 
     get_latest_data()
 
-    p = './indata/sp2023berncowls.xlsx'
-    sheetname = 'Sp2023BernCoWLs'
+    p = "./indata/sp2023berncowls.xlsx"
+    sheetname = "Sp2023BernCoWLs"
 
     df = pd.read_excel(p, sheet_name=sheetname)
 
     # filter out any rows with Well_Name that starts with Z -
-    filtered = df[~df['Well_Name'].str.startswith('Z -')]
+    filtered = df[~df["Well_Name"].str.startswith("Z -")]
 
     # group df by Well_Name column
-    grouped = filtered.groupby('Well_Name')
+    grouped = filtered.groupby("Well_Name")
     for name, group in grouped:
         # check if in database
 
         repr_row = group.iloc[0]
-        pointid = get_point_id(client, repr_row['PointID'])
+        pointid = get_point_id(client, repr_row["PointID"])
         if pointid:
-            print(f'{name} already in database')
+            print(f"{name} already in database")
         else:
             pointid = add_point_to_db(client, repr_row)
 
         # iterate over each row in the group
         # sort group by date
-        group = group.sort_values(by='Date')
+        group = group.sort_values(by="Date")
 
         # get the latest record from the database
         dbrecord = get_latest_record(client, pointid)
         if dbrecord:
             # filter out all records that are older than the latest record in the database
-            group = group[group['Date'] > dbrecord['Date']]
+            group = group[group["Date"] > dbrecord["Date"]]
 
         # add records to database
         add_records_to_db(client, group)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
 
 # ============= EOF =============================================

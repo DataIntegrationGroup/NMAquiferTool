@@ -26,15 +26,16 @@ import yaml
 #         ycfg = yaml.load(f, Loader=yaml.FullLoader)
 #
 
+
 def get_credential(key):
-    return os.environ.get(key, 'default')
+    return os.environ.get(key, "default")
     # return os.environ.get(key, ycfg.get(key, 'default'))
 
 
-HOST = get_credential('NM_AQUIFER_HOST')
-USER = get_credential('NM_AQUIFER_USER')
-PWD = get_credential('NM_AQUIFER_PWD')
-DB = get_credential('NM_AQUIFER_DB')
+HOST = get_credential("NM_AQUIFER_HOST")
+USER = get_credential("NM_AQUIFER_USER")
+PWD = get_credential("NM_AQUIFER_PWD")
+DB = get_credential("NM_AQUIFER_DB")
 
 
 # ===============================================================================
@@ -45,19 +46,24 @@ def get_db_client():
     """
 
     import pymssql
+
     try:
         client = pymssql.connect(HOST, USER, PWD, DB, login_timeout=1)
     except pymssql.OperationalError as e:
-        print('Error connecting to database. Check your credentials.')
-        print('Using credentials =============')
-        print('HOST: ', HOST)
-        print('USER: ', USER)
-        print('DB: ', DB)
-        print('===============================')
-        if HOST == 'default' and USER == 'default' and DB == 'default':
-            print('Please set db credentials in your config file or as environment variables ')
+        print("Error connecting to database. Check your credentials.")
+        print("Using credentials =============")
+        print("HOST: ", HOST)
+        print("USER: ", USER)
+        print("DB: ", DB)
+        print("===============================")
+        if HOST == "default" and USER == "default" and DB == "default":
+            print(
+                "Please set db credentials in your config file or as environment variables "
+            )
         print(e)
         exit()
 
     return client
+
+
 # ============= EOF =============================================

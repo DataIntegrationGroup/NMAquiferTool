@@ -22,7 +22,7 @@ def run(config):
     print(config, os.path.isfile(config))
     # get configuration
     if os.path.isfile(config):
-        with open(config, 'r') as f:
+        with open(config, "r") as f:
             config = yaml.load(f, Loader=yaml.FullLoader)
 
     # run the config
@@ -30,15 +30,17 @@ def run(config):
 
 
 def run_c(config):
-
-    for step in config['steps']:
-        func = step['function']
+    for step in config["steps"]:
+        func = step["function"]
         func = globals()[func]
-        func(**step['args'])
+        func(**step["args"])
 
 
 def onyx_export(output):
     print(f"Exporting to {output}")
     from nmat.onyx_export import export
+
     export(output)
+
+
 # ============= EOF =============================================
