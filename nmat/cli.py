@@ -65,6 +65,7 @@ def waterlevels(file, sheetname, commit, verbose):
 
     waterlevels(file, sheetname, dry=not commit, verbose=verbose)
 
+
 @upload.command()
 @click.option("--file", prompt="Specify input file path", help="Input file path")
 @click.option("--sheetname", default="NewWells", help="The sheet name")
@@ -74,4 +75,6 @@ def wells(file, sheetname, commit, verbose):
     from nmat.runner import add_wells
 
     add_wells(file, sheetname, dry=not commit, verbose=verbose)
+
+
 # ============= EOF =============================================
